@@ -1,14 +1,18 @@
-import React, { useState } from "react";
-import axios from "axios";
-import Loader from "./components/Loader/Loader";
-import styles from "./App.module.css";
-import Chat from "./components/Chat/Chat";
-import Controls from "./components/Controls/Controls";
+import React, { useState } from 'react'
+import Assistant from './assistants/googleai'
+import  Loader  from "./components/Loader/Loader";
+import styles from './App.module.css'
+import Chat from './components/Chat/Chat'
+import Controls from './components/Controls/Controls'
+
 
 function App() {
-  const [messages, setMessages] = useState([]);
+
+  const assistant = new Assistant();
+  const [messages, setMessages] = useState([])
   const [isLoading, setIsLoading] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
+
 
   function updateLastMessageContent(content) {
     setMessages((prevMessages) =>
@@ -24,28 +28,36 @@ function App() {
     setMessages((prevMessages) => [...prevMessages, message]);
   }
 
+
   async function handleContentSend(content) {
     addMessage({ content, role: "user" });
     setIsLoading(true);
-
     try {
-      // API call to deployed server or local environment
-      const response = await axios.post(`/api/Chat`, { prompt: content });
+      const result = await assistant.chatStream(content);
+      let isFirstChunk = false;
 
-      const botMessage = {
-        content: response.data.candidates[0]?.content.parts[0]?.text || "No response",
-        role: "assistant",
-      };
+      for await (const chunk of result) {
+        if (!isFirstChunk) {
+          isFirstChunk = true;
+          addMessage({ content: "", role: "assistant" });
+          setIsLoading(false);
+          setIsStreaming(true);
+        }
 
-      addMessage(botMessage);
+        updateLastMessageContent(chunk);
+      }
+      setIsStreaming(false);
+
     } catch (error) {
       addMessage({
         content: "Sorry, I couldn't process your request. Please try again!",
         role: "system",
       });
-    } finally {
       setIsLoading(false);
-      setIsStreaming(false);
+      setIsStreaming(false)
+
+    }finally{
+      setIsLoading(false);
     }
   }
 
@@ -55,13 +67,14 @@ function App() {
       <header className={styles.Header}>
         <img className={styles.Logo} src="/chat-bot.png" alt="chatbot png photo" />
         <h1 className={styles.Title}>Aero</h1>
-      </header>
+     </header>
       <div className={styles.ChatContainer}>
         <Chat messages={messages} />
       </div>
-      <Controls isDisabled={isLoading || isStreaming} onSend={handleContentSend} />
+      <Controls isDisabled={isLoading || isStreaming} onSend={handleContentSend}/>
     </div>
-  );
+  )
 }
 
-export default App;
+
+export default App

@@ -2,7 +2,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const googleai = new GoogleGenerativeAI(import.meta.env.VITE_GOOGLE_AI_API_KEY);
 
-export class Assistant {
+export default class Assistant {
   #chat;
 
   constructor(model = "gemini-1.5-flash") {

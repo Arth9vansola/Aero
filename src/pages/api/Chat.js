@@ -11,7 +11,7 @@ export default async function handler(req, res) {
     }
 
     try {
-        const apiKey = process.env.VITE_GOOGLE_AI_API_KEY;
+        const apiKey = process.env.AIzaSyDj2nqwnlW1Tt0ESVUmqCdBQhEuMABiubg;
         const response = await axios.post(
             `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`,
             {

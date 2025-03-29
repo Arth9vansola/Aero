@@ -30,7 +30,7 @@ function App() {
 
     try {
       // API call to deployed server or local environment
-      const response = await axios.post(`/api/chat`, { prompt: content });
+      const response = await axios.post(`/api/Chat`, { prompt: content });
 
       const botMessage = {
         content: response.data.candidates[0]?.content.parts[0]?.text || "No response",
